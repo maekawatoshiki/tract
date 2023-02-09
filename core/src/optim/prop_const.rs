@@ -19,6 +19,7 @@ impl super::TypedPass for PropConst {
         let mut patch = TypedModelPatch::default();
         for n in model.eval_order()? {
             let node = model.node(n);
+            // println!("{:#?}", node);
             if node.op.is_stateless() && !node.op_is::<Const>() {
                 if let Some(inputs) = model
                     .node_input_facts(n)?

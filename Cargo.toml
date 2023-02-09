@@ -94,10 +94,10 @@ walkdir = "2.3.2"
 
 [profile.opt-no-lto]
 inherits="release"
-lto=false
+lto = false
 
 [profile.release]
-lto = true
+lto = false
 
 [profile.bench]
 debug = true
@@ -111,4 +111,4 @@ opt-level = 0 # work around never ending build on wondows
 [profile.dev.build-override]
 debug = false
 # strip = "debuginfo" does not work on android and ios
-incremental = false
+incremental = true

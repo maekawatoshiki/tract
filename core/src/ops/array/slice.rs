@@ -81,6 +81,7 @@ impl OpState for Slice {
 }
 
 fn eval_slice(input: &Tensor, axis: usize, start: usize, end: usize) -> TractResult<TVec<TValue>> {
+    println!("start = {}, end = {}, i[axis] = {}", start, end, input.shape()[axis]);
     if end > input.shape()[axis] || start > end {
         bail!("Invalid range {}..{} for slicing {:?} on axis {}", start, end, input, axis);
     }

@@ -24,6 +24,7 @@ impl super::TypedPass for PushSliceUp {
             let invariants = node.op.invariants(&ifacts, &ofacts)?;
             'axis: for axis in 0..ofacts[0].rank() {
                 if let Some(boundaries) = should_slice_output(model, node, axis)? {
+                    println!("! boundaries = {:#?}, name = {}", boundaries, node.name);
                     let mut splits = tvec!();
                     let mut patch = TypedModelPatch::new("push slice up");
                     let inputs = node
@@ -33,11 +34,14 @@ impl super::TypedPass for PushSliceUp {
                         .collect::<TractResult<TVec<OutletId>>>()?;
                     let mut start = 0;
                     let axis_info = invariants.track_output_axis(0, axis);
+                    // todo!();
                     for end in &boundaries {
                         let mut wires = tvec!();
                         for input_ix in 0..inputs.len() {
                             let mut wire = inputs[input_ix];
                             if let Some(input_axis) = axis_info.and_then(|it| it.inputs[input_ix]) {
+                                println!("start = {}, end = {}", start, end);
+
                                 wire = patch.wire_node(
                                     format!(
                                         "{}.split-{}-over-{}.{}..{}.slice",
@@ -98,6 +102,8 @@ pub fn should_slice_output(
             }
         }
     }
+    println!("Node name = {}", node.name);
+    println!("boundaries = {:#?}", boundaries);
     let mut boundaries: TVec<usize> = if let Ok(boundaries) =
         boundaries.iter().map(|x| x.to_usize()).collect::<TractResult<TVec<_>>>()
     {
@@ -114,7 +120,10 @@ pub fn should_slice_output(
     boundaries.retain(|x| *x > 0);
     boundaries.sort();
     boundaries.dedup();
-    if boundaries.len() == 0 { // happens when input is of size 0. don't care.
+    println!("boundaries = {:#?}", boundaries);
+    // 197 not needed
+    if boundaries.len() == 0 {
+        // happens when input is of size 0. don't care.
         Ok(None)
     } else {
         Ok(Some(boundaries))

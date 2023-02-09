@@ -84,6 +84,8 @@ impl TypedOp for Gather {
         model: &TypedModel,
         node: &TypedNode,
     ) -> TractResult<Option<TypedModelPatch>> {
+        // return Ok(None);
+        // todo!();
         let indices_fact = model.outlet_fact(node.inputs[1])?;
         if let Some(indices) = indices_fact.konst.as_ref() {
             if indices.len() == 1 {
@@ -96,6 +98,8 @@ impl TypedOp for Gather {
                 } else {
                     index.to_dim()
                 };
+                // println!("index: {:?}", index.clone());
+                // println!("index: {:?}", index.clone() + 1);
                 wire = patch.wire_node(
                     format!("{}.slice", node.name),
                     crate::ops::array::Slice {

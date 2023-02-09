@@ -1,13 +1,16 @@
+use std::time::Instant;
+
 use tract_onnx::prelude::*;
 
 fn main() -> TractResult<()> {
     let model = tract_onnx::onnx()
         // load the model
-        .model_for_path("mobilenetv2-7.onnx")?
+        .model_for_path("../../../altius/models/deit.onnx")?
         // optimize the model
-        .into_optimized()?
+        .into_optimized().unwrap()
         // make the model runnable and fix its inputs and outputs
         .into_runnable()?;
+    println!("{}", model.model());
 
     // open image, resize it and make a Tensor out of it
     let image = image::open("grace_hopper.jpg").unwrap().to_rgb8();
@@ -21,15 +24,20 @@ fn main() -> TractResult<()> {
     .into();
 
     // run the model on the input
-    let result = model.run(tvec!(image.into()))?;
-
-    // find and display the max value with its index
-    let best = result[0]
-        .to_array_view::<f32>()?
-        .iter()
-        .cloned()
-        .zip(2..)
-        .max_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
-    println!("result: {best:?}");
+    for i in 0..10 {
+        let pre = Instant::now();
+        let result = model.run(tvec!(image.clone().into()))?;
+        println!("elapsed: {:?}", pre.elapsed());
+    }
     Ok(())
+
+    // // find and display the max value with its index
+    // let best = result[0]
+    //     .to_array_view::<f32>()?
+    //     .iter()
+    //     .cloned()
+    //     .zip(2..)
+    //     .max_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+    // println!("result: {best:?}");
+    // Ok(())
 }
